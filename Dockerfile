@@ -1,12 +1,20 @@
 # Pull base image
 FROM resin/rpi-raspbian:jessie
-MAINTAINER Pascal de Vink <pascal.de.vink@gmail.com>
+MAINTAINER Henrik Östman <trycoon@gmail.com>
 
-RUN apt-get update && apt-get install -y wget
-
-RUN wget -q -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
-RUN wget -q -O /etc/apt/sources.list.d/mosquitto-jessie.list http://repo.mosquitto.org/debian/mosquitto-jessie.list
-RUN apt-get update && apt-get install -y mosquitto
+ENV MOSQUITTO_VERSION 1.4.11
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install wget build-essential libwrap0-dev libssl-dev python-distutils-extra libc-ares-dev uuid-dev -y && \
+    mkdir -p /usr/local/src && \
+    cd /usr/local/src && \
+    wget http://mosquitto.org/files/source/mosquitto-${MOSQUITTO_VERSION}.tar.gz && \
+    tar xvzf ./mosquitto-${MOSQUITTO_VERSION}.tar.gz && \
+    cd /usr/local/src/mosquitto-${MOSQUITTO_VERSION} && \
+    make && make install && \
+    cd /usr/local/src && \
+    rm mosquitto-${MOSQUITTO_VERSION}.tar.gz && \
+    apt-get autoremove wget build-essential libwrap0-dev libssl-dev python-distutils-extra libc-ares-dev uuid-dev -y
 
 RUN adduser --system --disabled-password --disabled-login mosquitto
 
